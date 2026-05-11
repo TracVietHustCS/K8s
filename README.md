@@ -1,3 +1,8 @@
+<img width="1292" height="1475" alt="image" src="https://github.com/user-attachments/assets/67ed3333-aa1e-4e7c-9836-1415d0f3f2cb" />
+<img width="264" height="148" alt="image" src="https://github.com/user-attachments/assets/79fa69ed-89cd-4218-82ab-6972b773cd3a" />
+<img width="900" height="500" alt="image" src="https://github.com/user-attachments/assets/440ff799-5e14-4c4b-b65a-0ea6447c4aaf" />
+
+
 
 Dưới đây là **Runbook chi tiết** để dựng một cluster Kubernetes 2 node (1 Master, 1 Worker) bằng `kubeadm`. Trong mỗi bước, mình sẽ giải thích rõ tại sao chúng ta lại phải chạy lệnh đó.
 
