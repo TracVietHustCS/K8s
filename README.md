@@ -198,5 +198,119 @@ kubectl get nodes
 ```
 
 Bạn sẽ thấy cả 2 nodes (`k8s-master` và `k8s-worker-1`) hiển thị với STATUS là **Ready**. Chúc mừng bạn, bạn đã có một Cluster K8s tiêu chuẩn, sẵn sàng để setup GitOps và deploy Postgres/Dify ở các bước tiếp theo!
+
+
+Chào bạn, bước sang giai đoạn này, chúng ta chính thức biến một cụm K8s "trắng" thành một nền tảng sẵn sàng chạy ứng dụng.
+
+Ở môi trường Cloud (AWS EKS, Google GKE), khi bạn tạo K8s, họ đã "lắp sẵn" cho bạn ổ cứng (AWS EBS) và Load Balancer. Nhưng với `kubeadm` trên máy ảo (bare-metal), cụm của bạn hiện tại **không biết cách tự cấp phát ổ cứng** và **không có cổng nào mở ra ngoài ở port 80/443**.
+
+Dưới đây là tài liệu hướng dẫn cấu hình chuẩn Production cho bare-metal để giải quyết 2 vấn đề trên.
+
+---
+
+### Phần 1: Cài đặt Dynamic Storage Provisioner (Giải quyết bài toán Database)
+
+**Tại sao phải cần?**
+Khi deploy Postgres, nó sẽ yêu cầu một ổ cứng (Persistent Volume Claim - PVC) ví dụ: *"Cho tôi 10GB đĩa"*. Nếu không có Storage Provisioner, request này sẽ treo vĩnh viễn ở trạng thái `Pending`.
+
+**Giải pháp:** Sử dụng **Rancher Local Path Provisioner**. Đây là giải pháp tiêu chuẩn, cực kỳ ổn định cho homelab. Nó tự động tạo các thư mục trên ổ cứng của Worker VM và "biến" chúng thành Persistent Volume (PV) cấp cho Pod.
+
+**Thực thi (Chạy trên MASTER NODE):**
+
+1. Cài đặt Local Path Provisioner từ manifest chính thức:
+
+```bash
+kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.28/deploy/local-path-storage.yaml
+
+```
+
+2. Đặt nó làm StorageClass mặc định của toàn cụm. (Điều này giúp cấu hình GitOps sau này cực nhàn, bạn không cần phải khai báo tên StorageClass trong mọi file YAML nữa):
+
+```bash
+kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+
+```
+
+3. Kiểm tra thành quả:
+
+```bash
+kubectl get storageclass
+# Bạn sẽ thấy: local-path (default)   rancher.io/local-path ...
+
+```
+
+---
+
+### Phần 2: Cài đặt Ingress Controller - Traefik (Giải quyết bài toán Network)
+
+**Tại sao phải cần?**
+Mặc định, K8s giấu mọi ứng dụng bên trong mạng nội bộ của nó. Để người dùng bên ngoài truy cập vào Frontend, Backend, hay Dify bằng tên miền (domain) qua port `80` (HTTP) hoặc `443` (HTTPS), bạn cần một "Người gác cổng" - đó chính là **Ingress Controller**.
+
+**Thực thi:**
+
+#### Bước 2.1: Cài đặt công cụ quản lý package Helm
+
+Traefik và 99% các ứng dụng phức tạp sau này đều được đóng gói bằng Helm. Bạn hãy cài Helm lên Master Node:
+
+```bash
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+chmod 700 get_helm.sh
+sudo ./get_helm.sh
+
+```
+
+#### Bước 2.2: Chuẩn bị file cấu hình (Values) cho Traefik
+
+**Lưu ý cực kỳ quan trọng cho Homelab:** Vì bạn không có Cloud Load Balancer, cách tốt nhất để mở port 80 và 443 cho Traefik trên bare-metal là sử dụng `hostPort`. Nó sẽ gắn trực tiếp cổng 80/443 của Traefik vào card mạng của Worker VM.
+
+Tạo một file tên là `traefik-values.yaml` trên Master Node và dán nội dung sau vào:
+
+```yaml
+ports:
+  web:
+    port: 8000
+    hostPort: 80      # Mở port 80 trực tiếp trên IP của Worker VM
+  websecure:
+    port: 8443
+    hostPort: 443     # Mở port 443 trực tiếp trên IP của Worker VM
+service:
+  type: NodePort      # Bỏ qua LoadBalancer mặc định vì ta không dùng Cloud
+
+```
+
+#### Bước 2.3: Deploy Traefik bằng Helm
+
+Chạy các lệnh sau để tải và cài đặt Traefik:
+
+```bash
+# Thêm kho lưu trữ của Traefik
+helm repo add traefik https://traefik.github.io/charts
+helm repo update
+
+# Tạo một namespace riêng để dễ quản lý
+kubectl create namespace traefik
+
+# Cài đặt Traefik với file cấu hình ta vừa tạo
+helm install traefik traefik/traefik -n traefik -f traefik-values.yaml
+
+```
+
+#### Bước 2.4: Kiểm tra thành quả
+
+Chạy lệnh kiểm tra Pod của Traefik:
+
+```bash
+kubectl get pods -n traefik
+
+```
+
+Nếu Pod báo trạng thái `Running`, hãy mở trình duyệt web trên máy tính cá nhân của bạn và gõ IP của **Worker VM** (Ví dụ: `http://192.168.1.101`).
+Nếu bạn nhận được thông báo lỗi `404 page not found` màu trắng đơn giản -> **Chúc mừng, bạn đã cấu hình thành công!** Traefik đã nhận được request nhưng nó báo 404 vì bạn chưa có ứng dụng nào (Frontend/Backend) để nó trỏ tới.
+
+---
+
+Đến đây, nền móng (Storage & Network) của cụm K8s đã hoàn thiện 100%. Mọi thứ đã sẵn sàng để tiếp nhận ứng dụng.
+
+Bước tiếp theo trong bản đồ của chúng ta là **Dựng nguồn sự thật - Gitea Server**. Bạn muốn cài Gitea thẳng vào trong cụm K8s này (tối ưu tài nguyên), hay dựng trên một VM riêng biệt (tối ưu an toàn, K8s lỗi thì code vẫn còn)?
 <img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/d9e440f4-353d-4fca-9ab5-ca7948d32873" />
 
