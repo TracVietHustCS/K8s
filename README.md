@@ -198,3 +198,5 @@ kubectl get nodes
 ```
 
 Bạn sẽ thấy cả 2 nodes (`k8s-master` và `k8s-worker-1`) hiển thị với STATUS là **Ready**. Chúc mừng bạn, bạn đã có một Cluster K8s tiêu chuẩn, sẵn sàng để setup GitOps và deploy Postgres/Dify ở các bước tiếp theo!
+<img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/d9e440f4-353d-4fca-9ab5-ca7948d32873" />
+
