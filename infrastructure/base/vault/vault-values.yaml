@@ -1,0 +1,41 @@
+server:
+  # Single node (Non-HA) to save resources
+  replicas: 1
+  
+  # Resource Management
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "300m"
+      memory: "512Mi"
+
+  # Storage configuration (Standalone mode)
+  dataStorage:
+    enabled: true
+    size: 4Gi
+    storageClass: local-path
+
+  # Standalone config instead of Raft HA
+  standalone:
+    enabled: true
+    config: |
+      ui = true
+      listener "tcp" {
+        tls_disable = 1
+        address = "[::]:8200"
+        cluster_address = "[::]:8201"
+      }
+      storage "file" {
+        path = "/vault/data"
+      }
+
+  # UI accessible via Service
+  ui:
+    enabled: true
+    serviceType: "ClusterIP"
+
+# We disable the standard ingress to use a custom IngressRoute for path-based routing
+ingress:
+  enabled: false

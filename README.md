@@ -68,7 +68,7 @@ EOF
 
 # Apply thay đổi ngay lập tức
 sudo sysctl --system
-
+confi
 ```
 
 ---
@@ -81,7 +81,7 @@ K8s không tự chạy container, nó ra lệnh cho một phần mềm bên dư�
 # Cài đặt containerd
 sudo apt-get update
 sudo apt-get install -y containerd
-
+vi c
 # Tạo thư mục config cho containerd
 sudo mkdir -p /etc/containerd
 
@@ -92,6 +92,13 @@ containerd config default | sudo tee /etc/containerd/config.toml > /dev/null
 
 **Cấu hình Cgroup Driver (RẤT QUAN TRỌNG):**
 Linux quản lý tài nguyên CPU/RAM bằng `cgroups`. Ubuntu dùng `systemd` làm quản lý gốc. Kubelet mặc định cấu hình dùng `systemd`. Bạn phải chỉnh `containerd` cũng dùng `systemd`, nếu không sẽ xảy ra tình trạng "trống đánh xuôi kèn thổi ngược" khiến Node bị treo.
+Trên Ubuntu/CentOS hiện đại: Hệ điều hành sử dụng systemd làm trình quản lý cgroup gốc (gọi là cgroup driver).
+
+Vấn đề: Khi bạn chạy K8s, có hai thực thể cùng muốn quản lý tài nguyên của container:
+
+Kubelet: (Thành phần của K8s trên Node) Mặc định nó muốn dùng systemd.
+
+Container Runtime (containerd): Nếu để mặc định (false), nó sẽ dùng driver riêng của nó là cgroupfs.
 
 ```bash
 # Sửa false thành true cho SystemdCgroup
@@ -118,6 +125,15 @@ curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | sudo gpg --
 # Add Repository vào apt
 echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
+```
+echo 'deb [signed-by=...] https://pkgs.k8s.io/... /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+echo 'deb ...': Tạo ra một dòng văn bản chứa địa chỉ URL của kho phần mềm Kubernetes.
+
+[signed-by=...]: Đây là đoạn quan trọng nhất. Nó bảo với hệ thống rằng: "Này apt, khi ông tải phần mềm từ cái link này, ông phải dùng đúng cái chìa khóa tui vừa để trong /etc/apt/keyrings/ để mở nhé!".
+```
+
+sudo tee /etc/apt/sources.list.d/kubernetes.list:
+
 # Cài đặt các package
 sudo apt-get update
 sudo apt-get install -y kubelet kubeadm kubectl
@@ -140,6 +156,9 @@ sudo kubeadm init \
   --pod-network-cidr=192.168.0.0/16
 
 ```
+sudo kubeadm init \
+  --apiserver-advertise-address=192.168.1.130 \
+  --pod-network-cidr=192.168.0.0/16
 
 * **`apiserver-advertise-address`**: Chỉ định IP mà K8s API sẽ lắng nghe (rất quan trọng trên máy có nhiều card mạng).
 * **`pod-network-cidr`**: Dải IP ảo sẽ cấp cho các ứng dụng (Pod). Calico CNI mặc định dùng dải `192.168.0.0/16`.
@@ -314,3 +333,27 @@ Nếu bạn nhận được thông báo lỗi `404 page not found` màu trắng 
 Bước tiếp theo trong bản đồ của chúng ta là **Dựng nguồn sự thật - Gitea Server**. Bạn muốn cài Gitea thẳng vào trong cụm K8s này (tối ưu tài nguyên), hay dựng trên một VM riêng biệt (tối ưu an toàn, K8s lỗi thì code vẫn còn)?
 <img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/d9e440f4-353d-4fca-9ab5-ca7948d32873" />
 
+
+Your Kubernetes control-plane has initialized successfully!
+
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+Alternatively, if you are the root user, you can run:
+
+  export KUBECONFIG=/etc/kubernetes/admin.conf
+
+You should now deploy a pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+Then you can join any number of worker nodes by running the following on each as root:
+
+kubeadm join 192.168.1.130:6443 --token h8gw1u.keuvore02617jmw0 \
+        --discovery-token-ca-cert-hash sha256:96bbaf04a65db274c2eeb31c2a96fe40806b0fd9b9c24bef5f71cae4ec5e3be3
+
+        sudo kubeadm join <MASTER_IP>:6443 --token <token_cua_ban> \
+        --discovery-token-ca-cert-hash sha256:<chuoi_hash_cua_ban>

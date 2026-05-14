@@ -1,0 +1,9 @@
+ports:
+  web:
+    port: 8000
+    hostPort: 2001      # Mở port 80 trực tiếp trên IP của Worker VM
+  websecure:
+    port: 8443
+    hostPort: 2002     # Mở port 443 trực tiếp trên IP của Worker VM
+service:
+  type: NodePort      # Bỏ qua LoadBalancer mặc định vì ta không dùng Cloud
