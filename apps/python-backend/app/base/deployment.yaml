@@ -20,3 +20,15 @@ spec:
           image: viet2212/pythonbacken:1.0
           ports:
             - containerPort: 8000
+          readinessProbe: # Kiểm tra App đã sẵn sàng nhận khách chưa
+            httpGet:
+              path: /health # Giả sử app có endpoint này
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe: # Kiểm tra App còn sống không (nếu treo thì restart)
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 20
