@@ -12,4 +12,6 @@ spec:
               value: "http://123.16.178.213:2001/gitea/"
             - name: GITEA__server__DOMAIN
               value: "123.16.178.213"
+            - name: GITEA__webhook__ALLOWED_HOST_LIST
+              value: "*" # Cho phép bắn webhook tới mọi IP nội bộ
   
