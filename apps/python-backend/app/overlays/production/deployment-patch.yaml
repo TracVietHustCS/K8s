@@ -3,15 +3,15 @@ kind: Deployment
 metadata:
   name: python-backend
 spec:
-  replicas: 1 # Increased for Production HA
+  replicas: 3
   template:
     spec:
       containers:
         - name: backend
-          image: viet2212/pythonbacken:1.0 # Standardized image name
+          image: viet2212/pythonbacken:1.0 # <--- CI/CD PIPELINE SẼ CẬP NHẬT DÒNG NÀY
           env:
             - name: DB_HOST
-              value: "python-db-rw.backend.svc.cluster.local" # Points to the CNPG Service
+              value: "python-db-rw.backend.svc.cluster.local"
             - name: DB_NAME
               value: "app_db"
             - name: DB_USER
@@ -24,7 +24,7 @@ spec:
                 secretKeyRef:
                   name: python-db-secret
                   key: password
-          resources: # Essential for Production
+          resources:
             limits:
               cpu: "500m"
               memory: "512Mi"

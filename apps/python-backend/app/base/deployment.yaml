@@ -17,18 +17,18 @@ spec:
     spec:
       containers:
         - name: backend
-          image: viet2212/pythonbacken:1.0
+          image: python-backend:placeholder # Tên image mẫu
           ports:
             - containerPort: 8000
-          readinessProbe: # Kiểm tra App đã sẵn sàng nhận khách chưa
+          readinessProbe:
             httpGet:
-              path: /health # Giả sử app có endpoint này
+              path: /db-check # Sửa thành route thực tế đang chạy
               port: 8000
             initialDelaySeconds: 5
             periodSeconds: 5
-          livenessProbe: # Kiểm tra App còn sống không (nếu treo thì restart)
+          livenessProbe:
             httpGet:
-              path: /health
+              path: /db-check # Sửa thành route thực tế đang chạy
               port: 8000
             initialDelaySeconds: 15
             periodSeconds: 20
