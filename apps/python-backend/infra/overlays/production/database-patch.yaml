@@ -1,0 +1,8 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: python-db
+spec:
+  instances: 2 # Production High Availability
+  storage:
+    size: 2Gi # Production capacity

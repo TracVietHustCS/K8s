@@ -12,3 +12,4 @@ spec:
               value: "http://123.16.178.213:2001/gitea/"
             - name: GITEA__server__DOMAIN
               value: "123.16.178.213"
+  

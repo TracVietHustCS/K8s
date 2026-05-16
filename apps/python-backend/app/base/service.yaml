@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: python-backend
+  namespace: backend
+  labels:
+    app.kubernetes.io/name: python-backend
+spec:
+  selector:
+    app.kubernetes.io/name: python-backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000

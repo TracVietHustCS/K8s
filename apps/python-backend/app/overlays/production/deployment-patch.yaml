@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-backend
+spec:
+  replicas: 3 # Increased for Production HA
+  template:
+    spec:
+      containers:
+        - name: backend
+          image: viet2212/pythonbacken:1.0 # Standardized image name
+          env:
+            - name: DB_HOST
+              value: "python-db-rw.backend.svc.cluster.local" # Points to the CNPG Service
+            - name: DB_NAME
+              value: "app_db"
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: python-db-secret
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: python-db-secret
+                  key: password
+          resources: # Essential for Production
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "100m"
+              memory: "128Mi"

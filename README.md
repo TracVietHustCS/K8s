@@ -357,3 +357,12 @@ kubeadm join 192.168.1.130:6443 --token h8gw1u.keuvore02617jmw0 \
 
         sudo kubeadm join <MASTER_IP>:6443 --token <token_cua_ban> \
         --discovery-token-ca-cert-hash sha256:<chuoi_hash_cua_ban>
+
+
+flux bootstrap git \
+  --url=http://123.16.178.213:2001/gitea/viet_admin/k8s-gitops.git \
+  --branch=main \
+  --path=clusters/my-cluster \
+  --username=viet_admin \
+  --password=670883e823e23c6e4ef5a7f09713fb746354f9e2 \
+  --insecure-skip-tls-verify

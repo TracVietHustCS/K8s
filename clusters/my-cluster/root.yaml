@@ -1,0 +1,14 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: apps-root
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: infrastructure # WAIT FOR OPERATORS (ESO, CNPG)
+  interval: 10m
+  path: ./clusters/my-cluster/apps-manager
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system

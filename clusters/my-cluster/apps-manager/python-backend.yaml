@@ -1,0 +1,44 @@
+---
+# 1. THE DATABASE & INFRA LAYER (Stateful)
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: python-backend-infra
+  namespace: flux-system
+spec:
+  interval: 1h # Infrastructure changes less often
+  retryInterval: 2m
+  path: ./apps/python-backend/infra/overlays/production
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  healthChecks:
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      name: python-db
+      namespace: backend
+
+---
+# 2. THE APPLICATION LAYER (Stateless)
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: python-backend-app
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: python-backend-infra # Guaranteed namespace and DB exist
+  interval: 1m # Standard interval for apps
+  path: ./apps/python-backend/app/overlays/production
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  wait: true
+  timeout: 5m
+  healthChecks:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: python-backend
+      namespace: backend

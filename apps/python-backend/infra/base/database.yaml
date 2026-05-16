@@ -1,0 +1,19 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: python-db
+  namespace: backend
+spec:
+  instances: 1 # Mock/Dev default
+  imageName: ghcr.io/cloudnative-pg/postgresql:16
+
+  storage:
+    size: 512Mi # Mock/Dev size
+    storageClass: local-path
+
+  bootstrap:
+    initdb:
+      database: app_db
+      owner: app_user
+      secret:
+        name: python-db-secret

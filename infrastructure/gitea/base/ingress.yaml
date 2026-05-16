@@ -9,7 +9,7 @@ spec:
       - /gitea
 ---
 apiVersion: traefik.io/v1alpha1
-kind: IngressRoute
+kind:   
 metadata:
   name: gitea
   namespace: gitea

@@ -1,0 +1,28 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: python-strip-prefix
+  namespace: backend
+spec:
+  stripPrefix:
+    prefixes:
+      - /python
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: python-backend
+  namespace: backend
+  labels:
+    app.kubernetes.io/name: python-backend
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: PathPrefix(`/python`)
+      kind: Rule
+      middlewares:
+        - name: python-strip-prefix
+      services:
+        - name: python-backend
+          port: 80

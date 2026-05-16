@@ -1,0 +1,60 @@
+# cluster_values_v2_metrics_only.yaml
+cluster:
+  name: nemi-eks-cluster
+
+destinations:
+  - name: prometheus
+    type: prometheus
+    url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/write
+
+# CHỈ METRICS
+metrics:
+  enabled: true
+  
+  kubeStateMetrics:
+    enabled: true
+    
+  nodeExporter:
+    enabled: true
+  
+  cost:
+    enabled: false
+
+# TẮT LOGS
+logs:
+  enabled: false  # <-- TẮT LOGS
+
+# TẮT TRACES
+traces:
+  enabled: false
+
+# CHỈ CẦN ALLOY METRICS
+alloy:
+  enabled: true
+  
+  controller:
+    type: daemonset
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+# TẮT ALLOY-LOGS
+alloy-logs:
+  enabled: false  # <-- TẮT ALLOY-LOGS
+
+kube-state-metrics:
+  enabled: true
+
+prometheus-node-exporter:
+  enabled: true
+
+prometheus-operator-crds:
+  enabled: true
+
+opencost:
+  enabled: false

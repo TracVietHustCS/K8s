@@ -1,0 +1,43 @@
+# OS Specific Files
+.DS_Store
+Thumbs.db
+*.swp
+
+# IDE Specific Files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Local Secrets & Credentials (NEVER PUSH THESE)
+*.key
+*.pem
+*.token
+*.password
+.env
+.env.*
+kubeconfig
+config
+
+# Debug & Temporary Files
+*.ps1
+*.yaml.bak
+*-patched.yaml
+tmp/
+debug_*/
+exec_flux.ps1
+patch_*.ps1
+senior_bootstrap.ps1
+final_restore.ps1
+
+# Binaries & Tooling
+getup
+*.exe
+*.dll
+
+# GitOps Specific (Exclude manual local overrides)
+# Only manifests managed by Flux should be pushed
+# infrastructure/vault/base/cluster-secret-store.yaml.bak
+
+# Logs
+*.log
