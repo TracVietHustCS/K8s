@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: python-backend
 spec:
-  replicas: 3 # Increased for Production HA
+  replicas: 1 # Increased for Production HA
   template:
     spec:
       containers:
