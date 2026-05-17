@@ -8,7 +8,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: viet2212/pythonbacken:main-12-f9e8372
+          image: viet2212/pythonbacken:main-18-323b125
           env:
             - name: DB_HOST
               value: "python-db-rw.backend.svc.cluster.local"
