@@ -8,7 +8,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: viet2212/pythonbacken:1.0 # <--- CI/CD PIPELINE SẼ CẬP NHẬT DÒNG NÀY
+          image: viet2212/pythonbacken:main-10-2a18f44
           env:
             - name: DB_HOST
               value: "python-db-rw.backend.svc.cluster.local"
