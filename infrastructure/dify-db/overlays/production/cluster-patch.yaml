@@ -1,0 +1,9 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: dify-db
+spec:
+  instances: 2
+  imageName: ghcr.io/tensorchord/cloudnative-pg-vectordb:16
+  storage:
+    size: 2Gi

@@ -366,3 +366,5 @@ flux bootstrap git \
   --username=viet_admin \
   --password=670883e823e23c6e4ef5a7f09713fb746354f9e2 \
   --insecure-skip-tls-verify
+
+  sync fluxcd ngay lap tuc: kubectl annotate externalsecret python-db-ext-secret -n backend force-sync=$(date +%s) --overwrite

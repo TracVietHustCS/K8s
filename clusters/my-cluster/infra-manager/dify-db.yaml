@@ -1,0 +1,17 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: dify-db-infra
+  namespace: flux-system
+spec:
+  interval: 1h
+  path: ./infrastructure/dify-db/overlays/production
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  healthChecks:
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      name: dify-db
+      namespace: dify

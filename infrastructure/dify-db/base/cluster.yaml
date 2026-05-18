@@ -1,0 +1,17 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: dify-db
+  namespace: dify
+spec:
+  instances: 1 # Mock default
+  imageName: ghcr.io/cloudnative-pg/postgresql:16 # Generic image
+  storage:
+    size: 1Gi # Small size for base
+    storageClass: local-path
+  bootstrap:
+    initdb:
+      database: dify
+      owner: dify
+      secret:
+        name: dify-common-secret

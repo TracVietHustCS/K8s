@@ -1,0 +1,26 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: dify-strip-prefix
+  namespace: dify
+spec:
+  stripPrefix:
+    prefixes:
+      - /dify
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: dify-web
+  namespace: dify
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: PathPrefix(`/dify`)
+      kind: Rule
+      middlewares:
+        - name: dify-strip-prefix
+      services:
+        - name: dify-nginx
+          port: 80

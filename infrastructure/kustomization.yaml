@@ -4,4 +4,5 @@ resources:
   - external-secrets
   - vault/base
   - traefik/base
+  - dify-db
   # Add cnpg once you have manifests in it
