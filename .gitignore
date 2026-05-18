@@ -45,7 +45,3 @@ getup
 # Temporary Documentation
 DIFY_DEPLOYMENT_GUIDE.md
 ARCHITECTURE.md
-
-# Redundant Manifests
-infrastructure/dify-db/cluster.yaml
-infrastructure/dify-db/kustomization.yaml
